@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>x-Brain</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+        <h1>Irgendwas klassifizieren</h1>
+        <form method="post" action="#" th:action="@{/classify}">
+            <label for="inputText">Eingabe hier</label>
+            <input type="text" name="inputText" id="inputText" autofocus="autofocus"/>
+            <input type="submit" id="formSubmitButton" value="Klassifizieren"/>
+            
+        </form>
+        Dieser Text gehört in   
+        <table>
+            <thead>
+                <tr>
+                    <th> Category </th>
+                    <th> Propability </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="singleResult : ${result}">
+	        <td th:text="${singleResult.category}">Principle</td>
+	        <td th:text="${singleResult.probability}">0.00001</td>
+	      </tr>
+            </tbody>
+        </table>
+        <h1>Irgendwas trainieren</h1>
+        <form method="post" action="#" th:action="@{/train}">
+            <select id="categoryDropdown" name="category">
+                <option th:each="category : ${categories}" th:text="${category}">
+                    category1
+                </option>
+            </select>
+            <label for="inputText">Eingabe hier</label>
+            <input type="text" name="inputText" id="inputText" autofocus="autofocus"/>
+            <input type="submit" id="formSubmitButton" value="Trainieren"/>
+            
+        </form>
+    </body>
+</html>
