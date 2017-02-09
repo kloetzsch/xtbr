@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>x-Brain</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+        <h1>Matrixtest</h1>
+    </body>
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th th:each="category : ${categories}" th:text="${category}">head</th>
+                <th>sum</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="row,rowItrStatus : ${testMatrix}">
+                <th th:text="${categories.get(rowItrStatus.index)}" align="right">row</th>
+                <td th:each="column,columnItrStatus : ${row}" th:text="${column}">1</td>
+            </tr> 
+            <tr></tr>
+        </tbody>
+    </table>
+</html>

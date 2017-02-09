@@ -1,10 +1,8 @@
 package de.kl;
 
-import de.kl.classifier.Classification;
 import de.kl.classifier.Classifier;
 import de.kl.dict.CsvFeatureDictionary;
 import java.util.Arrays;
-import java.util.Collection;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
