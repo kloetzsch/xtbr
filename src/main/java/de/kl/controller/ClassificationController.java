@@ -5,6 +5,7 @@ import de.kl.classifier.token.Tokenizer;
 import de.kl.dict.CategoryDictionary;
 import de.kl.dict.FeatureDictionary;
 import java.util.Collection;
+import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,6 +42,7 @@ public class ClassificationController
     @RequestMapping("")
     public String getIt(Model model)
     {
+        model.addAttribute("result", Collections.EMPTY_LIST);
         return this.addDefaultValuesToModel(model);
     }
 
@@ -57,6 +59,7 @@ public class ClassificationController
     {
         this.classifier.learn(category, tokenizer.tokenize(inputText));
         this.featureDictionary.addFeature(inputText, category);
+        model.addAttribute("result", Collections.EMPTY_LIST);
         return this.addDefaultValuesToModel(model);
     }
 

@@ -1,26 +1,37 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>x-Brain</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    </head>
-    <body>
-        <h1>Matrixtest</h1>
-    </body>
-    <table>
-        <thead>
-            <tr>
-                <th></th>
-                <th th:each="category : ${categories}" th:text="${category}">head</th>
-                <th>sum</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="row,rowItrStatus : ${testMatrix}">
-                <th th:text="${categories.get(rowItrStatus.index)}" align="right">row</th>
-                <td th:each="column,columnItrStatus : ${row}" th:text="${column}">1</td>
-            </tr> 
-            <tr></tr>
-        </tbody>
-    </table>
+    <div th:replace="fragments/header :: header"></div>
+</head>
+<body>
+    <div th:replace="fragments/menu :: menu"></div>
+    <h1>Matrixtest</h1>
+    <div class="row">
+        <div class="col col-md-12">
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th th:each="category : ${categories}" th:text="${category}">head</th>
+                        <th>sum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row,rowItrStatus : ${testMatrix}">
+
+                        <th th:text="${categories.get(rowItrStatus.index)}" align="right">row</th>
+                        <td 
+                            th:each="column,columnItrStatus : ${row}" 
+                            th:text="${column}" 
+                            th:class="${rowItrStatus.index} == ${columnItrStatus.index} and ${column} gt 0 ? 'alert alert-success' : (${column} gt 0 and ${columnItrStatus.index} lt ${categories.size()} ? 'alert alert-danger' : '')">
+                            1
+                        </td>
+                    </tr> 
+                    <tr></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
 </html>
