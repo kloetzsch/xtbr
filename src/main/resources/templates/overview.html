@@ -34,7 +34,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="singleResult : ${result}">
+                    <tr th:each="singleResult,resultItrStatus : ${result}" th:class="${resultItrStatus.index} == 0 ? 'alert alert-success' : ''">
                         <td th:text="${singleResult.category}">Principle</td>
                         <td th:text="${singleResult.probability}">0.00001</td>
                     </tr>

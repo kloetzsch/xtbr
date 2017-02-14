@@ -76,7 +76,7 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
                     @Override
                     public int compare(Classification<T, K> o1,
                             Classification<T, K> o2) {
-                        int toReturn = Float.compare(
+                        int toReturn = -1 * Float.compare(
                                 o1.getProbability(), o2.getProbability());
                         if ((toReturn == 0)
                                 && !o1.getCategory().equals(o2.getCategory()))
@@ -116,6 +116,7 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
      */
     public Collection<Classification<T, K>> classifyDetailed(
             Collection<T> features) {
+        SortedSet<Classification<T, K>> results = this.categoryProbabilities(features);
         return this.categoryProbabilities(features);
     }
 
