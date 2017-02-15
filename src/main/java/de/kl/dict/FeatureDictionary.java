@@ -7,7 +7,6 @@ package de.kl.dict;
 
 import de.kl.classifier.Classification;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  *
@@ -17,5 +16,5 @@ public interface FeatureDictionary
 {
     public int addFeature(String feature, String category);
     
-    public List<Pair<String,String>> getAllFeature();
+    public List<Classification> getAllFeature();
 }

@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import de.kl.classifier.Classification;
 import de.kl.classifier.Classifier;
+import java.util.List;
 
 /**
  * A concrete implementation of the abstract Classifier class.  The Bayes
@@ -76,11 +77,8 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
                     @Override
                     public int compare(Classification<T, K> o1,
                             Classification<T, K> o2) {
-                        int toReturn = -1 * Float.compare(
+                        int toReturn = Float.compare(
                                 o1.getProbability(), o2.getProbability());
-                        if ((toReturn == 0)
-                                && !o1.getCategory().equals(o2.getCategory()))
-                            toReturn = -1;
                         return toReturn;
                     }
                 });
@@ -116,8 +114,8 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
      */
     public Collection<Classification<T, K>> classifyDetailed(
             Collection<T> features) {
-        SortedSet<Classification<T, K>> results = this.categoryProbabilities(features);
         return this.categoryProbabilities(features);
+        
     }
 
 }

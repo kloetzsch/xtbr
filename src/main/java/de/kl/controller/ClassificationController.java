@@ -1,11 +1,16 @@
 package de.kl.controller;
 
+import de.kl.classifier.Classification;
 import de.kl.classifier.Classifier;
 import de.kl.classifier.token.Tokenizer;
 import de.kl.dict.CategoryDictionary;
 import de.kl.dict.FeatureDictionary;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,17 +25,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class ClassificationController
 {
 
-    private final Classifier classifier;
+    private final Classifier<String,String> classifier;
     private final CategoryDictionary categoryDictionary;
     private final FeatureDictionary featureDictionary;
-    private final Tokenizer tokenizer;
+    private final Tokenizer<String> tokenizer;
 
     @Autowired
     public ClassificationController(
-            Classifier classifier,
+            Classifier<String,String> classifier,
             CategoryDictionary categoryDictionary,
             FeatureDictionary featureDictionary,
-            Tokenizer tokenizer
+            Tokenizer<String> tokenizer
     )
     {
         this.classifier = classifier;
@@ -49,8 +54,14 @@ public class ClassificationController
     @RequestMapping(value = "/classify", method = RequestMethod.POST)
     public String classifyRawText(String inputText, Model model)
     {
-        Collection result = this.classifier.classifyDetailed(tokenizer.tokenize(inputText));
-        model.addAttribute("result", result);
+        Collection<Classification<String,String>> result = this.classifier.classifyDetailed(tokenizer.tokenize(inputText));
+        List<Classification<String,String>> resultAsList = new ArrayList<>();
+        resultAsList.addAll(result);
+        Collections.sort(resultAsList, (Classification<String, String> o1, Classification<String, String> o2) -> {
+            return -1 * Float.compare(o1.getProbability(), o2.getProbability());
+        });
+
+        model.addAttribute("result", resultAsList);
         return this.addDefaultValuesToModel(model);
     }
 

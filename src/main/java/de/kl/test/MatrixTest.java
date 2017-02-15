@@ -7,14 +7,13 @@ package de.kl.test;
 
 import de.kl.classifier.Classification;
 import de.kl.classifier.Classifier;
+import de.kl.classifier.bayes.BayesClassifier;
 import de.kl.classifier.token.Tokenizer;
 import de.kl.dict.CategoryDictionary;
 import de.kl.dict.FeatureDictionary;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -65,21 +64,22 @@ public class MatrixTest
 
     private int[][] getTestCounts()
     {
+        BayesClassifier classifier = new BayesClassifier();
         List<String> categories = this.categoryDictionary.getCategories();
         int[][] returnValue = new int[categories.size()][categories.size()];
         int i = 0;
-        List<Pair<String, String>> testList = new ArrayList<>();
-        for (Pair<String, String> entry : featureDictionary.getAllFeature()) {
+        List<Classification> testList = new ArrayList<>();
+        for (Classification entry : featureDictionary.getAllFeature()) {
             if (i % 2 == 0) {
-                classifier.learn(entry.getRight(), Arrays.asList(tokenizer.tokenize(entry.getLeft())));
+                classifier.learn(entry);
             } else {
                 testList.add(entry);
             }
             i++;
         }
-        for (Pair<String, String> testEntry : testList) {
-            Classification result = classifier.classify(tokenizer.tokenize(testEntry.getLeft()));
-            returnValue[categories.indexOf(result.getCategory())][categories.indexOf(testEntry.getRight())]++;
+        for (Classification testEntry : testList) {
+            Classification result = classifier.classify(testEntry.getFeatureset());
+            returnValue[categories.indexOf(result.getCategory())][categories.indexOf(testEntry.getCategory())]++;
         }
         return returnValue;
     }

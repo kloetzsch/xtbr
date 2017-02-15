@@ -5,6 +5,8 @@
  */
 package de.kl.dict;
 
+import de.kl.classifier.Classification;
+import de.kl.classifier.token.Tokenizer;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,7 +18,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -29,14 +30,17 @@ import org.springframework.stereotype.Component;
 public class CsvFeatureDictionary implements FeatureDictionary
 {
 
-    List<Pair<String, String>> dictionary = new ArrayList<>();
+    List<Classification> dictionary = new ArrayList<>();
     private final String trainingFile;
+    private Tokenizer tokenizer;
 
     @Autowired
     public CsvFeatureDictionary(
-            @Value("${training.file}") String trainingFile
+            @Value("${training.file}") String trainingFile,
+            Tokenizer tokenizer
     ) throws IOException
     {
+        this.tokenizer = tokenizer;
         this.trainingFile = trainingFile;
         File file = new File(trainingFile);
         if (!file.exists()) {
@@ -51,7 +55,8 @@ public class CsvFeatureDictionary implements FeatureDictionary
     public int addFeature(String feature, String category)
     {
         try {
-            this.dictionary.add(Pair.of(feature, category));
+            Classification classification = new Classification(this.tokenizer.tokenize(feature), category);
+            this.dictionary.add(classification);
             try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream(trainingFile, true), "UTF-8"))) {
                 writer.append(category + "\t" + feature.replace("\t", " ")+ "\n");
@@ -63,7 +68,7 @@ public class CsvFeatureDictionary implements FeatureDictionary
     }
 
     @Override
-    public List<Pair<String, String>> getAllFeature()
+    public List<Classification> getAllFeature()
     {
         
         return this.dictionary;
@@ -72,8 +77,9 @@ public class CsvFeatureDictionary implements FeatureDictionary
     private void process(String line)
     {
         String category = line.substring(0, line.indexOf("\t"));
-        String feature = line.substring(line.indexOf("\t"));
-        this.dictionary.add(Pair.of(feature, category));
+        String feature = line.substring(line.indexOf("\t")+1);
+        Classification classification = new Classification(this.tokenizer.tokenize(feature), category);
+        this.dictionary.add(classification);
     }
 
 }
