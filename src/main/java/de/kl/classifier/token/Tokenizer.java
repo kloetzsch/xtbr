@@ -5,9 +5,8 @@ import java.util.Collection;
 /**
  *
  * @author konrad
- * @param <T>
  */
-public interface Tokenizer<T>
+public interface Tokenizer
 {
-    <T> Collection<T> tokenize(String featureString);
+     Collection<String> tokenize(String featureString);
 }

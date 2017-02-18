@@ -14,10 +14,9 @@ public class xtbrConfiguration
 {
 
     @Bean
-    public Classifier<String, String> getClassifier()
+    public Classifier getClassifier()
     {
         Classifier returnValue = new BayesClassifier();
-        returnValue.setMemoryCapacity(100);
         return returnValue;
     }
 }

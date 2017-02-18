@@ -1,27 +1,22 @@
 package de.kl.classifier.bayes;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import de.kl.classifier.Classification;
 import de.kl.classifier.Classifier;
-import java.util.List;
 
 /**
  * A concrete implementation of the abstract Classifier class.  The Bayes
  * classifier implements a naive Bayes approach to classifying a given set of
  * features: classify(feat1,...,featN) = argmax(P(cat)*PROD(P(featI|cat)
  *
- * @author Philipp Nolte
  *
  * @see http://en.wikipedia.org/wiki/Naive_Bayes_classifier
  *
- * @param <T> The feature class.
- * @param <K> The category class.
  */
-public class BayesClassifier<T, K> extends Classifier<T, K> {
+public class BayesClassifier extends Classifier {
 
     /**
      * Calculates the product of all feature probabilities: PROD(P(featI|cat)
@@ -30,10 +25,10 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
      * @param category The category to test for.
      * @return The product of all feature probabilities.
      */
-    private float featuresProbabilityProduct(Collection<T> features,
-            K category) {
+    private float featuresProbabilityProduct(Collection<String> features,
+            String category) {
         float product = 1.0f;
-        for (T feature : features)
+        for (String feature : features)
             product *= this.featureWeighedAverage(feature, category);
         return product;
     }
@@ -47,7 +42,7 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
      * @return The probability that the features can be classified as the
      *    category.
      */
-    private float categoryProbability(Collection<T> features, K category) {
+    private float categoryProbability(Collection<String> features, String category) {
         return ((float) this.categoryCount(category)
                     / (float) this.getCategoriesTotal())
                 * featuresProbabilityProduct(features, category);
@@ -60,8 +55,8 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
      * @param features The set of features to use.
      * @return A sorted <code>Set</code> of category-probability-entries.
      */
-    private SortedSet<Classification<T, K>> categoryProbabilities(
-            Collection<T> features) {
+    private SortedSet<Classification> categoryProbabilities(
+            Collection<String> features) {
 
         /*
          * Sort the set according to the possibilities. Because we have to sort
@@ -70,21 +65,16 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
          * achieve the desired functionality. A custom comparator is therefore
          * needed.
          */
-        SortedSet<Classification<T, K>> probabilities =
-                new TreeSet<Classification<T, K>>(
-                        new Comparator<Classification<T, K>>() {
+        SortedSet<Classification> probabilities =
+                new TreeSet<>(
+                        (Classification o1, Classification o2) -> {
+                            int toReturn = Float.compare(
+                                    o1.getProbability(), o2.getProbability());
+                            return toReturn;
+        });
 
-                    @Override
-                    public int compare(Classification<T, K> o1,
-                            Classification<T, K> o2) {
-                        int toReturn = Float.compare(
-                                o1.getProbability(), o2.getProbability());
-                        return toReturn;
-                    }
-                });
-
-        for (K category : this.getCategories())
-            probabilities.add(new Classification<T, K>(
+        for (String category : this.getCategories())
+            probabilities.add(new Classification(
                     features, category,
                     this.categoryProbability(features, category)));
         return probabilities;
@@ -96,8 +86,8 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
      * @return The category the set of features is classified as.
      */
     @Override
-    public Classification<T, K> classify(Collection<T> features) {
-        SortedSet<Classification<T, K>> probabilites =
+    public Classification classify(Collection<String> features) {
+        SortedSet<Classification> probabilites =
                 this.categoryProbabilities(features);
 
         if (probabilites.size() > 0) {
@@ -110,10 +100,12 @@ public class BayesClassifier<T, K> extends Classifier<T, K> {
      * Classifies the given set of features. and return the full details of the
      * classification.
      *
+     * @param features
      * @return The set of categories the set of features is classified as.
      */
-    public Collection<Classification<T, K>> classifyDetailed(
-            Collection<T> features) {
+    @Override
+    public Collection<Classification> classifyDetailed(
+            Collection<String> features) {
         return this.categoryProbabilities(features);
         
     }

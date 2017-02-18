@@ -1,6 +1,5 @@
 package de.kl.classifier.bayes;
 
-import de.kl.classifier.bayes.BayesClassifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,7 +17,7 @@ public class BayesClassifierTest {
 	private static final double EPSILON = 0.001;
 	private static final String CATEGORY_NEGATIVE = "negative";
 	private static final String CATEGORY_POSITIVE = "positive";
-	private Classifier<String, String> bayes;
+	private Classifier bayes;
 	
 	@Before
 	public void setUp() {
@@ -27,7 +26,7 @@ public class BayesClassifierTest {
          * Strings and the context will be classified with a String according
          * to the featureset of the context.
          */
-		bayes = new BayesClassifier<String, String>();
+		bayes = new BayesClassifier();
 		
 		/*
          * The classifier can learn from classifications that are handed over
@@ -56,10 +55,10 @@ public class BayesClassifierTest {
 		
 		final String[] unknownText1 = "today is a sunny day".split("\\s");
 		
-		Collection<Classification<String, String>> classifications = ((BayesClassifier<String, String>) bayes).classifyDetailed(
+		Collection<Classification> classifications = ((BayesClassifier) bayes).classifyDetailed(
                 Arrays.asList(unknownText1));
 		
-		List<Classification<String, String>> list = new ArrayList<Classification<String,String>>(classifications);
+		List<Classification> list = new ArrayList<Classification>(classifications);
 		
 		Assert.assertEquals(CATEGORY_NEGATIVE, list.get(0).getCategory());
 		Assert.assertEquals(0.0078125, list.get(0).getProbability(), EPSILON);

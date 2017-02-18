@@ -1,19 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.kl.test;
 
 import de.kl.classifier.Classification;
-import de.kl.classifier.Classifier;
 import de.kl.classifier.bayes.BayesClassifier;
-import de.kl.classifier.token.Tokenizer;
 import de.kl.dict.CategoryDictionary;
 import de.kl.dict.FeatureDictionary;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,29 +20,25 @@ import org.springframework.stereotype.Component;
 public class MatrixTest
 {
 
-    private final Classifier classifier;
+    private static final Logger LOGGER = LogManager.getLogger(MatrixTest.class);
+
     private final FeatureDictionary featureDictionary;
-    private final Tokenizer tokenizer;
     private final CategoryDictionary categoryDictionary;
 
     @Autowired
     public MatrixTest(
-            Classifier bayes,
             FeatureDictionary featureDictionary,
-            CategoryDictionary categoryDictionary,
-            Tokenizer tokenizer
+            CategoryDictionary categoryDictionary
     )
     {
-        this.classifier = bayes;
         this.featureDictionary = featureDictionary;
         this.categoryDictionary = categoryDictionary;
-        this.tokenizer = tokenizer;
     }
 
     public int[][] getTestMatrix()
     {
         int[][] testCounts = getTestCounts();
-        int[][] returnValue = new int[testCounts.length][testCounts.length+1];
+        int[][] returnValue = new int[testCounts.length][testCounts.length + 1];
         for (int rowCounter = 0; rowCounter < testCounts.length; rowCounter++) {
             int sum = IntStream.of(testCounts[rowCounter]).sum();
             for (int columnCounter = 0; columnCounter < testCounts[rowCounter].length; columnCounter++) {
@@ -79,7 +70,10 @@ public class MatrixTest
         }
         for (Classification testEntry : testList) {
             Classification result = classifier.classify(testEntry.getFeatureset());
-            returnValue[categories.indexOf(result.getCategory())][categories.indexOf(testEntry.getCategory())]++;
+            returnValue[categories.indexOf(testEntry.getCategory())][categories.indexOf(result.getCategory())]++;
+            if (!testEntry.getCategory().equals(result.getCategory())) {
+                LOGGER.info("expected: {}, actual: {} for {}.", testEntry.getCategory(), result.getCategory(), testEntry.getFeatureset());
+            }
         }
         return returnValue;
     }

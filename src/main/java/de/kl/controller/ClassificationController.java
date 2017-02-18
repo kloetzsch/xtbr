@@ -6,10 +6,8 @@ import de.kl.classifier.token.Tokenizer;
 import de.kl.dict.CategoryDictionary;
 import de.kl.dict.FeatureDictionary;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,17 +23,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class ClassificationController
 {
 
-    private final Classifier<String,String> classifier;
+    private final Classifier classifier;
     private final CategoryDictionary categoryDictionary;
     private final FeatureDictionary featureDictionary;
-    private final Tokenizer<String> tokenizer;
+    private final Tokenizer tokenizer;
 
     @Autowired
     public ClassificationController(
-            Classifier<String,String> classifier,
+            Classifier classifier,
             CategoryDictionary categoryDictionary,
             FeatureDictionary featureDictionary,
-            Tokenizer<String> tokenizer
+            Tokenizer tokenizer
     )
     {
         this.classifier = classifier;
@@ -54,10 +52,10 @@ public class ClassificationController
     @RequestMapping(value = "/classify", method = RequestMethod.POST)
     public String classifyRawText(String inputText, Model model)
     {
-        Collection<Classification<String,String>> result = this.classifier.classifyDetailed(tokenizer.tokenize(inputText));
-        List<Classification<String,String>> resultAsList = new ArrayList<>();
+        Collection<Classification> result = this.classifier.classifyDetailed(tokenizer.tokenize(inputText));
+        List<Classification> resultAsList = new ArrayList<>();
         resultAsList.addAll(result);
-        Collections.sort(resultAsList, (Classification<String, String> o1, Classification<String, String> o2) -> {
+        Collections.sort(resultAsList, (Classification o1, Classification o2) -> {
             return -1 * Float.compare(o1.getProbability(), o2.getProbability());
         });
 

@@ -6,21 +6,18 @@ import java.util.Collection;
  * A basic wrapper reflecting a classification.  It will store both featureset
  * and resulting classification.
  *
- *
- * @param <T> The feature class.
- * @param <K> The category class.
  */
-public class Classification<T, K> {
+public class Classification {
 
     /**
      * The classified featureset.
      */
-    private Collection<T> featureset;
+    private Collection<String> featureset;
 
     /**
      * The category as which the featureset was classified.
      */
-    private K category;
+    private String category;
 
     /**
      * The probability that the featureset belongs to the given category.
@@ -34,7 +31,7 @@ public class Classification<T, K> {
      * @param featureset The featureset.
      * @param category The category.
      */
-    public Classification(Collection<T> featureset, K category) {
+    public Classification(Collection<String> featureset, String category) {
         this(featureset, category, 1.0f);
     }
 
@@ -45,7 +42,7 @@ public class Classification<T, K> {
      * @param category The category.
      * @param probability The probability.
      */
-    public Classification(Collection<T> featureset, K category,
+    public Classification(Collection<String> featureset, String category,
             float probability) {
         this.featureset = featureset;
         this.category = category;
@@ -57,7 +54,7 @@ public class Classification<T, K> {
      *
      * @return The featureset.
      */
-    public Collection<T> getFeatureset() {
+    public Collection<String> getFeatureset() {
         return featureset;
     }
 
@@ -74,7 +71,7 @@ public class Classification<T, K> {
      *
      * @return The category.
      */
-    public K getCategory() {
+    public String getCategory() {
         return category;
     }
 

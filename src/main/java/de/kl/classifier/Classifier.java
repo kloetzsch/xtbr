@@ -1,11 +1,8 @@
 package de.kl.classifier;
 
 import java.util.Collection;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -14,10 +11,8 @@ import java.util.Set;
  * function has to be implemented by the concrete classifier class.
  *
  *
- * @param <T> A feature class
- * @param <K> A category class
  */
-public abstract class Classifier<T, K>
+public abstract class Classifier
 {
 
     /**
@@ -32,53 +27,34 @@ public abstract class Classifier<T, K>
     private static final int INITIAL_FEATURE_DICTIONARY_CAPACITY = 32;
 
     /**
-     * The initial memory capacity or how many classifications are memorized.
-     */
-    private int memoryCapacity = 1000;
-
-    /**
      * A dictionary mapping features to their number of occurrences in each known category.
      */
-    private Dictionary<K, Dictionary<T, Integer>> featureCountPerCategory;
+    private final Map<String, Map<String, Integer>> featureCountPerCategory;
 
     /**
      * A dictionary mapping features to their number of occurrences.
      */
-    private Dictionary<T, Integer> totalFeatureCount;
+    private final Map<String, Integer> totalFeatureCount;
 
     /**
      * A dictionary mapping categories to their number of occurrences.
      */
-    private Dictionary<K, Integer> totalCategoryCount;
-
-    /**
-     * The classifier's memory. It will forget old classifications as soon as they become too old.
-     */
-    private Queue<Classification<T, K>> memoryQueue;
+    private final Map<String, Integer> totalCategoryCount;
 
     /**
      * Constructs a new classifier without any trained knowledge.
      */
     public Classifier()
     {
-        this.reset();
-    }
-
-    /**
-     * Resets the <i>learned</i> feature and category counts.
-     */
-    public void reset()
-    {
         this.featureCountPerCategory
-                = new Hashtable<>(
+                = new HashMap<>(
                         Classifier.INITIAL_CATEGORY_DICTIONARY_CAPACITY);
         this.totalFeatureCount
-                = new Hashtable<>(
+                = new HashMap<>(
                         Classifier.INITIAL_FEATURE_DICTIONARY_CAPACITY);
         this.totalCategoryCount
-                = new Hashtable<K, Integer>(
+                = new HashMap<>(
                         Classifier.INITIAL_CATEGORY_DICTIONARY_CAPACITY);
-        this.memoryQueue = new LinkedList<>();
     }
 
     /**
@@ -86,9 +62,9 @@ public abstract class Classifier<T, K>
      *
      * @return The <code>Set</code> of features the classifier knows about.
      */
-    public Set<T> getFeatures()
+    public Set<String> getFeatures()
     {
-        return ((Hashtable<T, Integer>) this.totalFeatureCount).keySet();
+        return ((HashMap<String, Integer>) this.totalFeatureCount).keySet();
     }
 
     /**
@@ -96,9 +72,9 @@ public abstract class Classifier<T, K>
      *
      * @return The <code>Set</code> of categories the classifier knows about.
      */
-    public Set<K> getCategories()
+    public Set<String> getCategories()
     {
-        return ((Hashtable<K, Integer>) this.totalCategoryCount).keySet();
+        return ((HashMap<String, Integer>) this.totalCategoryCount).keySet();
     }
 
     /**
@@ -109,35 +85,10 @@ public abstract class Classifier<T, K>
     public int getCategoriesTotal()
     {
         int toReturn = 0;
-        for (Enumeration<Integer> e = this.totalCategoryCount.elements();
-                e.hasMoreElements();) {
-            toReturn += e.nextElement();
+        for (Integer categoryCount : this.totalCategoryCount.values()) {
+            toReturn += categoryCount;
         }
         return toReturn;
-    }
-
-    /**
-     * Retrieves the memory's capacity.
-     *
-     * @return The memory's capacity.
-     */
-    public int getMemoryCapacity()
-    {
-        return memoryCapacity;
-    }
-
-    /**
-     * Sets the memory's capacity. If the new value is less than the old value, the memory will be truncated
-     * accordingly.
-     *
-     * @param memoryCapacity The new memory capacity.
-     */
-    public void setMemoryCapacity(int memoryCapacity)
-    {
-        for (int i = this.memoryCapacity; i > memoryCapacity; i--) {
-            this.memoryQueue.poll();
-        }
-        this.memoryCapacity = memoryCapacity;
     }
 
     /**
@@ -147,13 +98,13 @@ public abstract class Classifier<T, K>
      * @param feature The feature, which count to increase.
      * @param category The category the feature occurred in.
      */
-    public void incrementFeature(T feature, K category)
+    public void incrementFeature(String feature, String category)
     {
-        Dictionary<T, Integer> features
+        Map<String, Integer> features
                 = this.featureCountPerCategory.get(category);
         if (features == null) {
             this.featureCountPerCategory.put(category,
-                    new Hashtable<T, Integer>(
+                    new HashMap<>(
                             Classifier.INITIAL_FEATURE_DICTIONARY_CAPACITY));
             features = this.featureCountPerCategory.get(category);
         }
@@ -178,7 +129,7 @@ public abstract class Classifier<T, K>
      *
      * @param category The category, which count to increase.
      */
-    public void incrementCategory(K category)
+    public void incrementCategory(String category)
     {
         Integer count = this.totalCategoryCount.get(category);
         if (count == null) {
@@ -189,78 +140,21 @@ public abstract class Classifier<T, K>
     }
 
     /**
-     * Decrements the count of a given feature in the given category. This is equal to telling the classifier that this
-     * feature was classified once in the category.
-     *
-     * @param feature The feature to decrement the count for.
-     * @param category The category.
-     */
-    public void decrementFeature(T feature, K category)
-    {
-        Dictionary<T, Integer> features
-                = this.featureCountPerCategory.get(category);
-        if (features == null) {
-            return;
-        }
-        Integer count = features.get(feature);
-        if (count == null) {
-            return;
-        }
-        if (count.intValue() == 1) {
-            features.remove(feature);
-            if (features.size() == 0) {
-                this.featureCountPerCategory.remove(category);
-            }
-        } else {
-            features.put(feature, --count);
-        }
-
-        Integer totalCount = this.totalFeatureCount.get(feature);
-        if (totalCount == null) {
-            return;
-        }
-        if (totalCount.intValue() == 1) {
-            this.totalFeatureCount.remove(feature);
-        } else {
-            this.totalFeatureCount.put(feature, --totalCount);
-        }
-    }
-
-    /**
-     * Decrements the count of a given category. This is equal to telling the classifier, that this category has
-     * occurred once less.
-     *
-     * @param category The category, which count to increase.
-     */
-    public void decrementCategory(K category)
-    {
-        Integer count = this.totalCategoryCount.get(category);
-        if (count == null) {
-            return;
-        }
-        if (count.intValue() == 1) {
-            this.totalCategoryCount.remove(category);
-        } else {
-            this.totalCategoryCount.put(category, --count);
-        }
-    }
-
-    /**
      * Retrieves the number of occurrences of the given feature in the given category.
      *
      * @param feature The feature, which count to retrieve.
      * @param category The category, which the feature occurred in.
      * @return The number of occurrences of the feature in the category.
      */
-    public int featureCount(T feature, K category)
+    public int featureCount(String feature, String category)
     {
-        Dictionary<T, Integer> features
+        Map<String, Integer> features
                 = this.featureCountPerCategory.get(category);
         if (features == null) {
             return 0;
         }
         Integer count = features.get(feature);
-        return (count == null) ? 0 : count.intValue();
+        return (count == null) ? 0 : count;
     }
 
     /**
@@ -269,16 +163,16 @@ public abstract class Classifier<T, K>
      * @param category The category, which count should be retrieved.
      * @return The number of occurrences.
      */
-    public int categoryCount(K category)
+    public int categoryCount(String category)
     {
         Integer count = this.totalCategoryCount.get(category);
-        return (count == null) ? 0 : count.intValue();
+        return (count == null) ? 0 : count;
     }
 
     /**
      * {@inheritDoc}
      */
-    public float featureProbability(T feature, K category)
+    public float featureProbability(String feature, String category)
     {
         if (this.categoryCount(category) == 0) {
             return 0;
@@ -299,7 +193,7 @@ public abstract class Classifier<T, K>
      * @param category The category.
      * @return The weighed average probability.
      */
-    public float featureWeighedAverage(T feature, K category)
+    public float featureWeighedAverage(String feature, String category)
     {
         return this.featureWeighedAverage(feature, category,
                 null, 1.0f, 0.5f);
@@ -317,8 +211,8 @@ public abstract class Classifier<T, K>
      * @param calculator The calculating object.
      * @return The weighed average probability.
      */
-    public float featureWeighedAverage(T feature, K category,
-            Classifier<T, K> calculator)
+    public float featureWeighedAverage(String feature, String category,
+            Classifier calculator)
     {
         return this.featureWeighedAverage(feature, category,
                 calculator, 1.0f, 0.5f);
@@ -337,8 +231,8 @@ public abstract class Classifier<T, K>
      * @param weight The feature weight.
      * @return The weighed average probability.
      */
-    public float featureWeighedAverage(T feature, K category,
-            Classifier<T, K> calculator, float weight)
+    public float featureWeighedAverage(String feature, String category,
+            Classifier calculator, float weight)
     {
         return this.featureWeighedAverage(feature, category,
                 calculator, weight, 0.5f);
@@ -355,8 +249,8 @@ public abstract class Classifier<T, K>
      * @param assumedProbability The assumed probability.
      * @return The weighed average probability.
      */
-    public float featureWeighedAverage(T feature, K category,
-            Classifier<T, K> calculator, float weight,
+    public float featureWeighedAverage(String feature, String category,
+            Classifier calculator, float weight,
             float assumedProbability)
     {
 
@@ -384,9 +278,9 @@ public abstract class Classifier<T, K>
      * @param category The category the features belong to.
      * @param features The features that resulted in the given category.
      */
-    public void learn(K category, Collection<T> features)
+    public void learn(String category, Collection<String> features)
     {
-        this.learn(new Classification<>(features, category));
+        this.learn(new Classification(features, category));
     }
 
     /**
@@ -394,23 +288,14 @@ public abstract class Classifier<T, K>
      *
      * @param classification The classification to learn.
      */
-    public void learn(Classification<T, K> classification)
+    public void learn(Classification classification)
     {
 
-        for (T feature : classification.getFeatureset()) {
+        for (String feature : classification.getFeatureset()) {
             this.incrementFeature(feature, classification.getCategory());
         }
         this.incrementCategory(classification.getCategory());
 
-        this.memoryQueue.offer(classification);
-        if (this.memoryQueue.size() > this.memoryCapacity) {
-            Classification<T, K> toForget = this.memoryQueue.remove();
-
-            for (T feature : toForget.getFeatureset()) {
-                this.decrementFeature(feature, toForget.getCategory());
-            }
-            this.decrementCategory(toForget.getCategory());
-        }
     }
 
     /**
@@ -420,8 +305,8 @@ public abstract class Classifier<T, K>
      * @param features The features to classify.
      * @return The category most likely.
      */
-    public abstract Classification<T, K> classify(Collection<T> features);
+    public abstract Classification classify(Collection<String> features);
 
-    public abstract Collection<Classification<T, K>> classifyDetailed(
-            Collection<T> features);
+    public abstract Collection<Classification> classifyDetailed(
+            Collection<String> features);
 }
