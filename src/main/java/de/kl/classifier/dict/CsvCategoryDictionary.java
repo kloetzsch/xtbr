@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.kl.dict;
+package de.kl.classifier.dict;
 
 import java.io.File;
 import java.io.IOException;

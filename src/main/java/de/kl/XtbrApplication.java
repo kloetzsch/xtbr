@@ -1,7 +1,7 @@
 package de.kl;
 
 import de.kl.classifier.Classifier;
-import de.kl.dict.CsvFeatureDictionary;
+import de.kl.classifier.dict.CsvFeatureDictionary;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;

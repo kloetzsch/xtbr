@@ -1,7 +1,7 @@
 package de.kl.controller;
 
-import de.kl.dict.CategoryDictionary;
-import de.kl.test.MatrixTest;
+import de.kl.classifier.dict.CategoryDictionary;
+import de.kl.classifier.test.MatrixTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

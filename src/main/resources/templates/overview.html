@@ -1,75 +1,73 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-    <head>
-    <div th:replace="fragments/header :: header">
-        some default header here
-    </div>
-</head>
-<body>
-    <div th:replace="fragments/menu :: menu">
-        some pretty menu here
-    </div>
-    <div class="row">
-        <div class="col col-md-12">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="fragments/header :: header">
+        <title>some title</title>
+    </head>
+    <body>
+        <div th:replace="fragments/menu :: menu">
+            some pretty menu here
+        </div>
+        <div class="row">
+            <div class="col col-md-12">
 
-            <h1>Einen Text klassifizieren</h1>
-            <div class="panel panel-default">
-                <div class="panel-heading">Geben sie einen zu klassifizierenden Text ein.   </div>
-                <div class="panel-body">
-                    <form method="post" action="#" th:action="@{/classify}">
-                        <input type="text" name="inputText" id="inputText" autofocus="autofocus" class="form-control" placeholder="some text"/>
-                    </form>
+                <h1>Einen Text klassifizieren</h1>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Geben sie einen zu klassifizierenden Text ein.   </div>
+                    <div class="panel-body">
+                        <form method="post" action="#" th:action="@{/classify}">
+                            <input type="text" name="inputText" id="inputText" autofocus="autofocus" class="form-control" placeholder="some text"/>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row" th:if="not ${result.isEmpty()}">
-        <div class="col col-md-12">
-            Dieser Text gehört in   
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th> Category </th>
-                        <th> Propability </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="singleResult,resultItrStatus : ${result}" th:class="${resultItrStatus.index} == 0 ? 'alert alert-success' : ''">
-                        <td th:text="${singleResult.category}">Principle</td>
-                        <td th:text="${singleResult.probability}">0.00001</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="row" th:if="not ${result.isEmpty()}">
+            <div class="col col-md-12">
+                Dieser Text gehört in   
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th> Category </th>
+                            <th> Propability </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="singleResult,resultItrStatus : ${result}" th:class="${resultItrStatus.index} == 0 ? 'alert alert-success' : ''">
+                            <td th:text="${singleResult.category}">Principle</td>
+                            <td th:text="${singleResult.probability}">0.00001</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col col-md-12">
+        <div class="row">
+            <div class="col col-md-12">
 
-            <h1>Den Klassifizierer mit einem neuen Datensatz trainieren</h1>
-            <form method="post" action="#" th:action="@{/train}" class="form-horizontal">
-                <div class="form-group">
-                    <label class="control-label col-md-1" for="category">category: </label>
-                    <div class="col col-md-11">
-                        <select id="categoryDropdown" name="category" class="form-control">
-                            <option th:each="category : ${categories}" th:text="${category}">
-                                category1
-                            </option>
-                        </select>
+                <h1>Den Klassifizierer mit einem neuen Datensatz trainieren</h1>
+                <form method="post" action="#" th:action="@{/train}" class="form-horizontal">
+                    <div class="form-group">
+                        <label class="control-label col-md-1" for="category">category: </label>
+                        <div class="col col-md-11">
+                            <select id="categoryDropdown" name="category" class="form-control">
+                                <option th:each="category : ${categories}" th:text="${category}">
+                                    category1
+                                </option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="inputText" class="control-label col-md-1">text: </label>
-                    <div class="col col-md-11">
-                        <input type="text" name="inputText" id="inputText" class="form-control" placeholder="some new training data"/>
+                    <div class="form-group">
+                        <label for="inputText" class="control-label col-md-1">text: </label>
+                        <div class="col col-md-11">
+                            <input type="text" name="inputText" id="inputText" class="form-control" placeholder="some new training data"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-md-offset-1 col-md-11">
-                        <input type="submit" id="formSubmitButton" value="Trainieren" class="btn btn-default"/>
+                    <div class="form-group">
+                        <div class="col-md-offset-1 col-md-11">
+                            <input type="submit" id="formSubmitButton" value="Trainieren" class="btn btn-default"/>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
-</body>
+    </body>
 </html>

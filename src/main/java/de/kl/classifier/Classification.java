@@ -75,9 +75,6 @@ public class Classification {
         return category;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         return "Classification [category=" + this.category

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.kl.dict;
+package de.kl.classifier.dict;
 
 import de.kl.classifier.Classification;
 import java.util.List;

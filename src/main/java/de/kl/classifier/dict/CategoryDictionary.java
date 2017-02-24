@@ -1,4 +1,4 @@
-package de.kl.dict;
+package de.kl.classifier.dict;
 
 import java.util.List;
 

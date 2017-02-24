@@ -1,4 +1,4 @@
-package de.kl.classifier.bayes;
+package de.kl.classifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,23 +12,25 @@ import org.junit.Test;
 import de.kl.classifier.Classification;
 import de.kl.classifier.Classifier;
 
-public class BayesClassifierTest {
+public class ClassifierTest
+{
 
-	private static final double EPSILON = 0.001;
-	private static final String CATEGORY_NEGATIVE = "negative";
-	private static final String CATEGORY_POSITIVE = "positive";
-	private Classifier bayes;
-	
-	@Before
-	public void setUp() {
-		/*
+    private static final double EPSILON = 0.001;
+    private static final String CATEGORY_NEGATIVE = "negative";
+    private static final String CATEGORY_POSITIVE = "positive";
+    private Classifier bayes;
+
+    @Before
+    public void setUp()
+    {
+        /*
          * Create a new classifier instance. The context features are
          * Strings and the context will be classified with a String according
          * to the featureset of the context.
          */
-		bayes = new BayesClassifier();
-		
-		/*
+        bayes = new Classifier();
+
+        /*
          * The classifier can learn from classifications that are handed over
          * to the learn methods. Imagin a tokenized text as follows. The tokens
          * are the text's features. The category of the text will either be
@@ -39,32 +41,34 @@ public class BayesClassifierTest {
 
         final String[] negativeText = "I hate rain".split("\\s");
         bayes.learn(CATEGORY_NEGATIVE, Arrays.asList(negativeText));
-	}
-	
-	@Test
-	public void testStringClassification() {
-		final String[] unknownText1 = "today is a sunny day".split("\\s");
+    }
+
+    @Test
+    public void testStringClassification()
+    {
+        final String[] unknownText1 = "today is a sunny day".split("\\s");
         final String[] unknownText2 = "there will be rain".split("\\s");
 
         Assert.assertEquals(CATEGORY_POSITIVE, bayes.classify(Arrays.asList(unknownText1)).getCategory());
         Assert.assertEquals(CATEGORY_NEGATIVE, bayes.classify(Arrays.asList(unknownText2)).getCategory());
-	}
-	
-	@Test
-	public void testStringClassificationInDetails() {
-		
-		final String[] unknownText1 = "today is a sunny day".split("\\s");
-		
-		Collection<Classification> classifications = ((BayesClassifier) bayes).classifyDetailed(
+    }
+
+    @Test
+    public void testStringClassificationInDetails()
+    {
+
+        final String[] unknownText1 = "today is a sunny day".split("\\s");
+
+        Collection<Classification> classifications =  bayes.classifyDetailed(
                 Arrays.asList(unknownText1));
-		
-		List<Classification> list = new ArrayList<Classification>(classifications);
-		
-		Assert.assertEquals(CATEGORY_NEGATIVE, list.get(0).getCategory());
-		Assert.assertEquals(0.0078125, list.get(0).getProbability(), EPSILON);
-		
-		Assert.assertEquals(CATEGORY_POSITIVE, list.get(1).getCategory());
-		Assert.assertEquals(0.0234375, list.get(1).getProbability(), EPSILON);
-	}
+
+        List<Classification> list = new ArrayList<Classification>(classifications);
+
+        Assert.assertEquals(CATEGORY_NEGATIVE, list.get(0).getCategory());
+        Assert.assertEquals(0.0078125, list.get(0).getProbability(), EPSILON);
+
+        Assert.assertEquals(CATEGORY_POSITIVE, list.get(1).getCategory());
+        Assert.assertEquals(0.0234375, list.get(1).getProbability(), EPSILON);
+    }
 
 }

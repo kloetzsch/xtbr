@@ -1,9 +1,9 @@
-package de.kl.test;
+package de.kl.classifier.test;
 
 import de.kl.classifier.Classification;
-import de.kl.classifier.bayes.BayesClassifier;
-import de.kl.dict.CategoryDictionary;
-import de.kl.dict.FeatureDictionary;
+import de.kl.classifier.Classifier;
+import de.kl.classifier.dict.CategoryDictionary;
+import de.kl.classifier.dict.FeatureDictionary;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -55,7 +55,7 @@ public class MatrixTest
 
     private int[][] getTestCounts()
     {
-        BayesClassifier classifier = new BayesClassifier();
+        Classifier classifier = new Classifier();
         List<String> categories = this.categoryDictionary.getCategories();
         int[][] returnValue = new int[categories.size()][categories.size()];
         int i = 0;
