@@ -1,5 +1,6 @@
 package de.kl.classifier.token;
 
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -8,5 +9,5 @@ import java.util.Collection;
  */
 public interface Tokenizer
 {
-     Collection<String> tokenize(String featureString);
+     Collection<String> tokenize(String featureString) throws IOException;
 }

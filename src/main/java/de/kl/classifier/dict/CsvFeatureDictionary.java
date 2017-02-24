@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,7 +33,7 @@ public class CsvFeatureDictionary implements FeatureDictionary
 
     List<Classification> dictionary = new ArrayList<>();
     private final String trainingFile;
-    private Tokenizer tokenizer;
+    private final Tokenizer tokenizer;
 
     @Autowired
     public CsvFeatureDictionary(
@@ -47,7 +48,13 @@ public class CsvFeatureDictionary implements FeatureDictionary
             file.createNewFile();
         }
         try (Stream<String> stream = Files.lines(Paths.get(trainingFile))) {
-            stream.forEach(line -> process(line));
+            stream.forEach(line -> {
+                try {
+                    process(line);
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
+            });
         }
     }
 
@@ -74,7 +81,7 @@ public class CsvFeatureDictionary implements FeatureDictionary
         return this.dictionary;
     }
 
-    private void process(String line)
+    private void process(String line) throws IOException
     {
         String category = line.substring(0, line.indexOf("\t"));
         String feature = line.substring(line.indexOf("\t")+1);

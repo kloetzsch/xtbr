@@ -5,6 +5,7 @@ import de.kl.classifier.Classifier;
 import de.kl.classifier.token.Tokenizer;
 import de.kl.classifier.dict.CategoryDictionary;
 import de.kl.classifier.dict.FeatureDictionary;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +51,7 @@ public class ClassificationController
     }
 
     @RequestMapping(value = "/classify", method = RequestMethod.POST)
-    public String classifyRawText(String inputText, Model model)
+    public String classifyRawText(String inputText, Model model) throws IOException
     {
         Collection<Classification> result = this.classifier.classifyDetailed(tokenizer.tokenize(inputText));
         List<Classification> resultAsList = new ArrayList<>();
@@ -64,7 +65,7 @@ public class ClassificationController
     }
 
     @RequestMapping(value = "/train", method = RequestMethod.POST)
-    public String classifyRawText(String inputText, String category, Model model)
+    public String classifyRawText(String inputText, String category, Model model) throws IOException
     {
         this.classifier.learn(category, tokenizer.tokenize(inputText));
         this.featureDictionary.addFeature(inputText, category);
