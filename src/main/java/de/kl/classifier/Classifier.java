@@ -66,7 +66,7 @@ public class Classifier
      */
     public Set<String> getFeatures()
     {
-        return ((HashMap<String, Integer>) this.totalFeatureCount).keySet();
+        return this.totalFeatureCount.keySet();
     }
 
     /**
@@ -76,7 +76,7 @@ public class Classifier
      */
     public Set<String> getCategories()
     {
-        return ((HashMap<String, Integer>) this.totalCategoryCount).keySet();
+        return this.totalCategoryCount.keySet();
     }
 
     /**

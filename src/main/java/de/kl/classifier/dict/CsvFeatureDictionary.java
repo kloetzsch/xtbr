@@ -83,8 +83,8 @@ public class CsvFeatureDictionary implements FeatureDictionary
 
     private void process(String line) throws IOException
     {
-        String category = line.substring(0, line.indexOf("\t"));
-        String feature = line.substring(line.indexOf("\t")+1);
+        String category = line.substring(0, line.indexOf('\t'));
+        String feature = line.substring(line.indexOf('\t')+1);
         Classification classification = new Classification(this.tokenizer.tokenize(feature), category);
         this.dictionary.add(classification);
     }
