@@ -1,30 +1,13 @@
 package de.kl.io.csv;
 
 import de.kl.io.csv.CsvReader.UserSettings;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Map;
 import org.junit.Test;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -303,6 +286,20 @@ public class CsvReaderTest
         CsvReader instance = new CsvReader(inputStream, null);
     }
 
+    @Test
+    public void testLineIteration_fileEndsWithNewLine_EndsCorreclty() throws IOException
+    {
+        UserSettings settings = new CsvReader.UserSettings();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("head1;head2\n\"value1\";\"value2\"\n".getBytes());
+        CsvReader instance = new CsvReader(inputStream, settings);
+        for (Map<String, String> line : instance) {
+            assertThat(line.get("head1"), is("value1"));
+            assertThat(line.get("head2"), is("value2"));
+            assertThat(line.size(), is(2));
+        }
+        assertThat(instance.getCurrentLineNumber(), is(1L));
+    }
+
     /**
      * check if input is ok
      *
@@ -317,4 +314,22 @@ public class CsvReaderTest
         CsvReader instance = new CsvReader(inputStream, settings);
     }
 
+    @Test
+    public void testCsvReaderCanOnlyBeReadOnce() throws IOException {
+                UserSettings settings = new CsvReader.UserSettings();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("head1\n\"value\"".getBytes());
+        CsvReader instance = new CsvReader(inputStream, settings);
+        int counter1 = 0;
+        for (Map<String, String> line : instance) {
+            counter1++;
+        }
+        instance.close();
+        assertThat(counter1, is(1));
+        int counter2 = 0;
+        for (Map<String, String> line : instance) {
+            counter2++;
+        }
+        assertThat(counter2, is(0));
+    }
+    
 }

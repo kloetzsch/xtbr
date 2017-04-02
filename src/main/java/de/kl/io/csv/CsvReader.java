@@ -22,10 +22,10 @@ import java.util.stream.IntStream;
 public class CsvReader implements Closeable, Iterable<Map<String, String>>
 {
 
-    private final InputStream inputStream;
     private final UserSettings userSettings;
     private final List<String> headers;
     private final ReadingStatus readingStatus;
+    private final ReadingBuffer readingBuffer;
 
     /**
      * Constructs a {@link CsvReader} wiht all dependencies set
@@ -41,7 +41,7 @@ public class CsvReader implements Closeable, Iterable<Map<String, String>>
         checkArgument(inputStream == null, "Parameter inputStream must not be null.");
         checkArgument(inputStream.available() == 0, "The given input stream is either closed or empty.");
         checkArgument(userSettings == null, "Parameter userSettings must not be null.");
-        this.inputStream = inputStream;
+        this.readingBuffer = new ReadingBuffer(inputStream);
         this.readingStatus = new ReadingStatus();
         this.headers = new ArrayList<>(this.readLine());
     }
@@ -49,40 +49,41 @@ public class CsvReader implements Closeable, Iterable<Map<String, String>>
     /**
      * Gets the number of the current line.
      *
-     * @return The index of the current record.
+     * @return The index of the current line.
      */
     public long getCurrentLineNumber()
     {
         return this.readingStatus.lineNumber - 1;
     }
 
-    private Map<String, String> getRecord() throws IOException
+    private Map<String, String> getLine() throws IOException
     {
         return IntStream.range(0, headers.size()).boxed().collect(Collectors.toMap(headers::get, this.readLine()::get));
     }
 
     /**
-     * Reads another record.
+     * Reads another line .
      *
-     * @return Whether another record was successfully read or not.
+     * @return the list of columns of the current line
      * @exception IOException Thrown if an error occurs while reading data from the source stream.
      */
     private List<String> readLine() throws IOException
     {
         readingStatus.returnValue.clear();
-        readingStatus.recordIsEnded = false;
-        do {
-            int currentChar = inputStream.read();
-            if (currentChar == -1) {
-                readingStatus.hasMoreData = false;
-                endRecord();
-            } else if (this.readingStatus.startedColumn) {
-                readInStartedColumn(currentChar);
+        readingStatus.lineIsEnded = false;
+        while (!readingStatus.lineIsEnded && !readingBuffer.isExhausted()) {
+            if (this.readingStatus.startedColumn) {
+                readInStartedColumn(readingBuffer.getCurrentChar());
             } else {
-                startColumn(currentChar);
+                startColumn(readingBuffer.getCurrentChar());
             }
-        } while (!readingStatus.recordIsEnded);
-
+        }
+        if (readingBuffer.isExhausted()) {
+            if (!readingStatus.lineIsEnded) {
+                endLine();
+            }
+            readingStatus.hasMoreData = false;
+        }
         return readingStatus.returnValue;
     }
 
@@ -103,7 +104,7 @@ public class CsvReader implements Closeable, Iterable<Map<String, String>>
             }
         } else if (currentChar == userSettings.lineDelimiter) {
             if (readingStatus.isEscaped || !readingStatus.isQualified) {
-                endRecord();
+                endLine();
                 checkSkipLine();
             } else {
                 readingStatus.columnBuffer.append((char) currentChar);
@@ -147,14 +148,14 @@ public class CsvReader implements Closeable, Iterable<Map<String, String>>
     @Override
     public void close() throws IOException
     {
-        inputStream.close();
+        this.readingBuffer.close();
     }
 
-    private void endRecord()
+    private void endLine()
     {
         endColumn();
         readingStatus.lineNumber++;
-        readingStatus.recordIsEnded = true;
+        readingStatus.lineIsEnded = true;
     }
 
     private void checkSkipLine()
@@ -163,7 +164,7 @@ public class CsvReader implements Closeable, Iterable<Map<String, String>>
                 && Collections.frequency(readingStatus.returnValue, "") == readingStatus.returnValue.size()) {
             readingStatus.returnValue.clear();
             readingStatus.lineNumber--;
-            readingStatus.recordIsEnded = false;
+            readingStatus.lineIsEnded = false;
         }
     }
 
@@ -189,13 +190,49 @@ public class CsvReader implements Closeable, Iterable<Map<String, String>>
             public Map<String, String> next()
             {
                 try {
-                    return getRecord();
+                    return getLine();
                 } catch (IOException ex) {
                     throw new UncheckedIOException(ex);
                 }
             }
         };
 
+    }
+
+    /**
+     * This class is necessary because the buffer must always read one char ahead of the current char because the end of
+     * file must be detected before the iterator returns true on hasNext
+     */
+    private class ReadingBuffer implements Closeable
+    {
+
+        private final InputStream inputStream;
+
+        private ReadingBuffer(InputStream inputStream) throws IOException
+        {
+            this.inputStream = inputStream;
+            this.currentChar = inputStream.read();
+        }
+
+        private int currentChar;
+
+        private boolean isExhausted()
+        {
+            return (currentChar == -1);
+        }
+
+        private int getCurrentChar() throws IOException
+        {
+            int returnValue = currentChar;
+            this.currentChar = inputStream.read();
+            return returnValue;
+        }
+
+        @Override
+        public void close() throws IOException
+        {
+            inputStream.close();
+        }
     }
 
     /**
@@ -210,7 +247,7 @@ public class CsvReader implements Closeable, Iterable<Map<String, String>>
         private final StringBuilder columnBuffer = new StringBuilder();
         boolean isQualified = false;
         boolean isEscaped = false;
-        boolean recordIsEnded = false;
+        boolean lineIsEnded = false;
         List<String> returnValue = new ArrayList<>();
 
     }

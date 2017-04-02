@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Menütitel</title>
+    </head>
+    <body>
+        <div th:fragment="messages">
+            <div th:if="${successMessage != null}" class="alert alert-success">
+                <strong>Success!</strong>
+                <span  th:text="${successMessage}">Indicates a successful or positive action.</span>
+            </div>
+
+            <div th:if="${infoMessage != null}" class="alert alert-info">
+                <strong>Info!</strong> Indicates a neutral informative change or action.
+            </div>
+
+            <div th:if="${warningMessage != null}" class="alert alert-warning">
+                <strong>Warning!</strong> Indicates a warning that might need attention.
+            </div>
+
+            <div th:if="${dangerMessage != null}" class="alert alert-danger">
+                <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
+            </div>
+        </div>
+    </body>
+</html>
